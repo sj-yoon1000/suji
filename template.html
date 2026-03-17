@@ -308,8 +308,8 @@ body {
   <div class="sub">2026년 실거래가 기준</div>
 </div>
 
-<div class="map-container" id="mapContainer">
-  <img id="mapImage" src="" alt="단지 지도" style="width:100%;display:block;">
+<div class="map-container" id="mapContainer" onclick="toggleZoomMap()">
+  <img id="mapImage" src="" alt="단지 지도" style="width:100%;display:block;transition:transform 0.3s;transform-origin:center center;">
 </div>
 <button class="map-toggle-bottom" id="mapCloseBtn" onclick="toggleMap()">지도 접기</button>
 
@@ -767,6 +767,14 @@ const MAP_IMAGES = __MAP_IMAGES__;
 function updateMap() {
   const img = document.getElementById('mapImage');
   img.src = MAP_IMAGES[activeComplex] || MAP_IMAGES['신정마을주공1'];
+}
+
+let mapZoomed = false;
+function toggleZoomMap() {
+  const img = document.getElementById('mapImage');
+  mapZoomed = !mapZoomed;
+  img.style.transform = mapZoomed ? 'scale(1.8)' : 'scale(1)';
+  document.getElementById('mapContainer').style.overflow = mapZoomed ? 'auto' : 'hidden';
 }
 
 function toggleMap() {
