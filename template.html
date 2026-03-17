@@ -464,7 +464,7 @@ function renderCards() {
     html += `<div class="card" data-complex="${c.name}">`;
     html += `<div class="card-title-row">`;
     html += `<span class="name">${c.label} <span class="meta">(${c.units.toLocaleString()}세대, ${c.year}년)</span></span>`;
-    if (c.station) html += `<span class="walk">${c.station}역</span>`;
+    if (c.walk) html += `<span class="walk">${c.station}역 도보 ${c.walk}분</span>`;
     html += `</div>`;
 
     // Chart
