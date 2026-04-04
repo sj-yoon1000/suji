@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>수지구 아파트 분석 리포트</title>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg: #f5f5f7;
+  --card-bg: #ffffff;
+  --text: #1d1d1f;
+  --text-muted: #6e6e73;
+  --border: #e5e5ea;
+  --blue: #007aff;
+  --green: #34c759;
+  --orange: #ff9500;
+  --purple: #af52de;
+  --red: #ff3b30;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+.header {
+  text-align: center;
+  padding: 48px 20px 12px;
+}
+.header h1 {
+  font-size: 28px;
+  font-weight: 700;
+}
+.header p {
+  color: var(--text-muted);
+  font-size: 14px;
+  margin-top: 4px;
+}
+
+.toc {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 20px;
+  flex-wrap: wrap;
+  position: sticky;
+  top: 0;
+  background: rgba(245,245,247,0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  z-index: 10;
+  border-bottom: 1px solid var(--border);
+}
+.toc a {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+.toc a:hover { transform: translateY(-1px); box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+.toc a.blue   { background: rgba(0,122,255,0.1); color: var(--blue); }
+.toc a.green  { background: rgba(52,199,89,0.1); color: var(--green); }
+.toc a.orange { background: rgba(255,149,0,0.1); color: var(--orange); }
+.toc a.purple { background: rgba(175,82,222,0.1); color: var(--purple); }
+
+.content-area {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 8px 20px 48px;
+}
+
+.section {
+  background: var(--card-bg);
+  border-radius: 16px;
+  padding: 32px;
+  margin-top: 20px;
+  border-left: 4px solid var(--section-color);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+.section[data-cat="입지-직장"] { --section-color: var(--green); }
+.section[data-cat="교통"]     { --section-color: var(--orange); }
+.section[data-cat="학군"]     { --section-color: var(--purple); }
+
+.section-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: var(--section-color);
+  margin-bottom: 12px;
+}
+
+.md-body h1 {
+  font-size: 22px;
+  font-weight: 700;
+  margin: 0 0 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+.md-body h2 {
+  font-size: 17px;
+  font-weight: 600;
+  margin: 28px 0 12px;
+  color: var(--text);
+}
+.md-body h3 {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 20px 0 8px;
+  color: var(--text-muted);
+}
+.md-body p {
+  margin: 8px 0;
+  line-height: 1.7;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+.md-body strong { color: var(--text); }
+.md-body blockquote {
+  border-left: 3px solid var(--border);
+  padding: 8px 16px;
+  margin: 12px 0;
+  color: var(--text-muted);
+  font-size: 13px;
+  background: #f9f9fb;
+  border-radius: 0 8px 8px 0;
+}
+.md-body ul, .md-body ol {
+  margin: 8px 0;
+  padding-left: 24px;
+}
+.md-body li {
+  margin: 4px 0;
+  line-height: 1.6;
+  font-size: 14px;
+  color: var(--text-muted);
+}
+.md-body table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 12px 0;
+  font-size: 13px;
+  overflow-x: auto;
+  display: block;
+}
+.md-body thead th {
+  background: #f5f5f7;
+  padding: 10px 12px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 12px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  border-bottom: 2px solid var(--border);
+}
+.md-body tbody td {
+  padding: 8px 12px;
+  border-bottom: 1px solid #f0f0f2;
+  white-space: nowrap;
+}
+.md-body tbody tr:hover {
+  background: #f9f9fb;
+}
+
+.footer {
+  text-align: center;
+  padding: 20px;
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+@media (max-width: 480px) {
+  .header h1 { font-size: 22px; }
+  .toc { gap: 6px; padding: 10px 12px; }
+  .toc a { padding: 6px 11px; font-size: 12px; }
+  .section { padding: 20px 16px; }
+  .md-body h1 { font-size: 18px; }
+  .md-body table { font-size: 11px; }
+  .md-body thead th, .md-body tbody td { padding: 6px 8px; }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>수지구 아파트 분석 리포트</h1>
+  <p>수지구 아파트 투자/거주 분석</p>
+</div>
+
+<nav class="toc">
+  <a href="#입지-직장" class="green">🏢 입지/직장</a>
+  <a href="#교통" class="orange">🚇 교통</a>
+  <a href="#학군" class="purple">🎓 학군</a>
+</nav>
+
+<div class="content-area">
+
+  <div class="section" data-cat="입지-직장" id="입지-직장">
+    <div class="section-label">🏢 입지 / 직장</div>
+    <div class="md-body" id="md-입지-직장"></div>
+  </div>
+
+  <div class="section" data-cat="교통" id="교통">
+    <div class="section-label">🚇 교통</div>
+    <div class="md-body" id="md-교통"></div>
+  </div>
+
+  <div class="section" data-cat="학군" id="학군">
+    <div class="section-label">🎓 학군</div>
+    <div class="md-body" id="md-학군"></div>
+  </div>
+
+
+</div>
+
+<div class="footer">수지구 아파트 분석 리포트</div>
+
+<script>
+const mdData = {};
+
+mdData['입지-직장'] = `# 수지구 입지 및 직장 분석
+
+## 생활권별 인구수 / 세대수 / 세대당 인구수
+
+| 생활권 | 포함지역 | 평당 매매가격 | 인구수 | 세대수 | 세대당 인구수 | 키워드 |
+|---|---|---|---|---|---|---|
+| 풍덕천 | 풍덕천동 | 3,377 | 75,648 | 31,001 | 2.44 | 수지구청역, 학원가 |
+| 성복 | 성복동 | 2,385 | 54,464 | 18,735 | 2.91 | 성복역, 롯데몰세권 |
+| 동천 | 동천동 | 1,936 | 46,796 | 18,037 | 2.59 | 동천역, 신축택지 |
+| 신봉 | 신봉동 | 2,043 | 41,044 | 14,748 | 2.78 | 옛 부촌, 대형 |
+| 상현 | 상현동 | 2,377 | 79,668 | 29,032 | 2.74 | 상현역, 초품아, 학원가 |
+| 죽전 | 죽전동 | 2,379 | 72,359 | 29,167 | 2.48 | 죽전역, 상권 |
+| 수지구 | 합계 | | | | 2.65 | |
+
+> 세대당 인구수 평균 2.65로, 수지구는 완성형 가족이 거주하기 좋은 도시
+
+## 수지 거주민의 소득
+
+| 순위 | 지역 (시군구) | 원천징수지별(직장소재지) | 주소지별(실제거주지) | 소득 격차 |
+|---|---|---|---|---|
+| 1 | 서울 강남구 | 360만 | 630만 | +270만 |
+| 2 | 서울 서초구 | 380만 | 625만 | +245만 |
+| 3 | 서울 송파구 | 320만 | 451만 | +131만 |
+| 4 | 경기 성남 분당구 | 380만 | 440만 | +60만 |
+| 5 | 서울 마포구 | 322만 | 437만 | +115만 |
+| 6 | 경기 용인 수지구 | 340만 | 430만 | +70만 |
+| 7 | 서울 양천구 | 267만 | 419만 | +152만 |
+| 8 | 서울 성동구 | 329만 | 442만 | +113만 |
+| 9 | 경기 안양 동안구 | 312만 | 377만 | +65만 |
+| 10 | 서울 성북구 | 281만 | 331만 | +50만 |
+| 11 | 경기 수원 영통구 | 311만 | 320만 | +9만 |
+| 12 | 서울 노원구 | 251만 | 309만 | +58만 |
+| 13 | 경기 용인 처인구 | 324만 | 285만 | -39만 |
+
+> 수지구는 대표적인 고소득 베드타운으로, 직주근접 수요로 선택되는 지역 (과천 > 성남 > 용인 순)
+
+## 수도권 사업체수 / 종사자수 비교
+
+| 권역 | 사업체수 | 종사자수 | 500인이상 사업체수 |
+|---|---|---|---|
+| 중구/종로구 | 11만개 | 66만명 | 138개 |
+| 영등포구/마포구 | 13만개 | 71만명 | 127개 |
+| 서초구/강남구/송파구 | 25만개 | 169만명 | 246개 |
+| **용인** | **10만개** | **41만명** | **27개** |
+
+> 용인은 강남의 1/4 수준 종사자수로, 자체 일자리가 부족한 베드타운
+
+## 입지 요약
+
+| 항목 | 내용 | 수지 입지기준 |
+|---|---|---|
+| **직장** | 강남 직장 의존도 높은 베드타운 | |
+| **교통** | a) 강남/판교 직장과 연결되는 신분당선역 접근성이 가장 중요 / b) 영통/기흥 직장과 연결되는 수인분당선역 접근성은 다음 순위로 고려 | 신분당선 역세권 여부 / 수인분당선 역세권 여부 |
+| **학군** | a) 이현중/정평중 가는 초등배정이 가장 중요 / b) 초품아+학원가를 이용할 수 있는 단지인지 | 초품아/초중고 / 학원가 |
+| **환경** | 편의시설 + 백화점/대형마트 + 연식의 힘 / 3가지 모두 합해졌을 때 압도적 힘 발휘 | 상권 / 연식 |
+| **공급** | 더 하위 생활권에 27,28년 공급이 예정되어 있음 | |
+
+`;
+
+mdData['교통'] = `# 수지구 교통 분석
+
+## 수지구의 핵심 교통 노선
+
+수지구의 핵심 교통 노선은 다음 2가지이다.
+
+1. **신분당선** — 강남/판교 업무지구로 환승 없이 연결
+2. **수인분당선** — 수원-용인 연결노선, 환승 1회로 강남 이동 가능
+
+## 신분당선 / 수인분당선 소요시간 비교
+
+|  | 동천 (신분당선) | 수지구청 (신분당선) | 성복 (신분당선) | 상현 (신분당선) | 죽전 (수인선) |
+|---|---|---|---|---|---|
+| **강남권 강남역** | 23분 | 25분 | 28분 | 34분 | 환승1회, 31분 |
+| **도심권 광화문역** | 환승2회, 49분 | 환승2회, 52분 | 환승2회, 54분 | 환승2회, 57분 | 환승2회, 1시간12분 |
+| **여의도권 여의도역** | 환승1회, 50분 | 환승1회, 53분 | 환승1회, 55분 | 환승1회, 58분 | 환승2회, 55분 |
+| **판교권 판교역** | 8분 | 11분 | 14분 | 17분 | 환승1회, 14분 |
+| **삼성권 영통역** | 환승1회, 45분 | 환승1회, 48분 | 환승1회, 51분 | 환승1회, 54분 | 33분 |
+
+- 신분당선 이용시 **강남권 40분 이내 / 판교권 20분 이내** 접근가능
+- 수인분당선 이용시 **환승 1회로 강남 30분 내외** 접근 가능
+
+## 신분당선 라인 — 승하차수 순위
+
+| 승하차수 | 노선 | 역명 | 특징 |
+|---|---|---|---|
+| 1위 | 신분당선 | 판교역 | 수도권 남부 최대 업무지구, 압도적 1위 |
+| 2위 | 수인분당 | 야탑역 | 분당 내 전통적인 상권 및 유동인구 밀집 |
+| 3위 | 수인분당 | 서현역 | 백화점 및 분당 중앙권역 핵심 거점 |
+| 4위 | 수인분당 | 죽전역 | 수지구 내 이용객 1위, 상권 결집 |
+| 5위 | 신분당선 | 성복역 | 롯데몰세권 |
+| 6위 | 신분당선 | 수지구청역 | 수지 학원가 및 주거 밀집지 핵심지역 |
+| 7위 | 신분당선 | 상현역 | 수지-광교 경계 |
+| 8위 | 신분당선 | 동천역 | 지식산업센터 등 준 분당지역 |
+| 9위 | 수인분당 | 기흥역 | 에버라인 환승 |
+| 10위 | 수인분당 | 구성역 | GTX-A 개통 |
+| 11위 | 신분당선 | 광교중앙역 | 경기도청, 갤러리아, 광교 핵심 업무지 |
+
+> 강남/판교에 더 가까운 동천역이 반드시 더 오르는 것은 아니며, 신분당선 역 중에서는 성복역과 수지구청역의 선호도가 가장 높다
+
+## 수인분당선 라인
+
+- 죽전역에서 강남역까지 28분 소요 (도보 2분, 환승 1회, 요금 2,850원, 22.1km)
+- 경로: 죽전역(수인분당선) → 정자역(신분당선) → 강남역
+- 수인분당선 라인도 충분히 가격 상승 메리트가 있는 노선
+- 죽전 내에서는 수인분당선(죽전역) 접근성이 선호요소 1순위
+- 수인분당선 도보 20분 이내 또는 버스 20분 이내 단지가 유리
+
+## 교통 요약
+
+- 수지구는 주요 일자리(강남/판교)로의 접근성이 우수한 지역
+- **주요 가치**: 신분당선과의 거리가 핵심 (단, 강남에 가까운 역이 반드시 더 가치 있는 것은 아님)
+- **다음 순위**: 수인분당선과의 거리 (도보 20분 이내 여부)
+- **한줄 요약**: 강남/판교 직장과 연결되는 신분당선역 접근성이 가장 중요하며, 영통/기흥 직장과 연결되는 수인분당선역 접근성은 다음 순위로 고려`;
+
+mdData['학군'] = `# 수지구 학군 분석
+
+## 분당학군과의 비교
+
+- 분당은 계획적으로 인프라가 구성된 학원가
+- 수지는 높은 밀집도로 빽빽하게 형성된 학원가
+
+## 수지구 중학교 학군
+
+수지의 4대 중학교: **홍천중, 이현중, 정평중, 대덕중**
+
+| 순위 | 위치 | 학교명 | 학업성취도평균 | 특목고진학률 | 특목고진학수 |
+|---|---|---|---|---|---|
+| 1 | 신봉동 | 홍천중학교 | 95.10% | 1.10% | 3명 |
+| 2 | 풍덕천동 | 이현중학교 | 93.90% | 3.60% | 13명 |
+| 3 | 성복동 | 성복중학교 | 93.90% | 4.60% | 12명 |
+| 4 | 풍덕천동 | 정평중학교 | 92.80% | 2.70% | 9명 |
+| 5 | 상현동 | 서원중학교 | 92.80% | 5.20% | 17명 |
+| 6 | 죽전동 | 용인대덕중 | 92.70% | 4.20% | 8명 |
+| 7 | 풍덕천동 | 수지중학교 | 91.20% | 3.50% | 12명 |
+| 8 | 죽전동 | 죽전중학교 | 89.90% | 3.50% | 8명 |
+| 9 | 동천동 | 용인한빛중 | 89.70% | 0.00% | 0명 |
+| 10 | 죽전동 | 대지중학교 | 89.60% | 3.50% | 5명 |
+| 11 | 상현동 | 상현중학교 | 89.00% | 2.50% | 5명 |
+| 12 | 동천동 | 손곡중학교 | 88.30% | 1.50% | 3명 |
+| 13 | 죽전동 | 현암중학교 | 88.20% | 1.70% | 3명 |
+| 14 | 성복동 | 성서중학교 | 87.90% | 3.90% | 8명 |
+| 15 | 신봉동 | 신봉중학교 | 84.60% | 0.00% | 0명 |
+| 16 | 풍덕천동 | 문정중학교 | 83.30% | 4.70% | 8명 |
+| | 수지구 평균 | | 90.10% | 2.80% | 114명 |
+
+> 95% 이상: 홍천중
+> 90% 이상: 이현중, 정평중, 용인대덕중, 성복중, 서원중, 수지중
+
+## 수지구 초등학교별 배정단지
+
+| 학교명 | 소재지 | 총학생수 | 학급당인원 | 배정단지 |
+|---|---|---|---|---|
+| 토월초 | 풍덕천동 | 616 | 22 | 건영캐스빌, 수지삼성래미안1차, 보원, 한성, 한국, 현대, 삼성쉐르빌, 수지파크푸르지오, 동문굿모닝힐, 동천파크자이, 빌라 |
+| 정평초 | 풍덕천동 | 881 | 23 | 신정2단지, 신정3단지, 신정 5단지, 신정6단지 우성/진흥/상록, 신정7단지 |
+| 신월초 | 풍덕천동 | 391 | 19 | 신정1단지, 신정9단지, 신정8단지, 힐스 수지구청역, 빌라 |
+| 풍덕초 | 풍덕천동 | 1140 | 23 | 더샵동천이스트포레, 동천파크자이, 수지삼성4차, 수지CJ빌리지, 동문굿모닝힐, 동부, 동아삼익풍림, 수지우성그린빌, 래미안수지이스트파크, 동보1차, 원흥 |
+| 풍천초 | 풍덕천동 | 1045 | 24 | 진천마을푸르지오, 진천마을삼성5차, 6차 |
+| 용인한빛초 | 동천동 | 738 | 22 | 더샵동천포레스트, 한빛마을래미안이스트펠리스1,2,3,4단지 |
+| 손곡초 | 동천동 | 768 | 23 | 동문그린2차, 동천마을동문굿모닝힐3차, 동천마을 현대홈타운2차, 수지디이스트, 동천마을 현대홈타운1차, 동천역 센트럴아이파크, 수진마을 1단지 써니벨리, 수진마을 3단지 우미이노스빌, 수진마을 4단지 신명스카이뷰 |
+| 동천초 | 동천동 | 1084 | 22 | 동천자이, 동천리삼성쉐르빌, 동천센트럴자이, 한화포레나수지동천, 동문그린2차, 동천디이스트, 수지디이스트, 보드레말마을 벽산블루밍, 핸림마을진로, 원천마을푸르지오, 동천마을영풍, 동천마을 현대홈타운 1차, 용인수지풍림2차, 더샵동천포레스트 |
+| 한빛초 | 동천동 | 738 | 22 | 이스트펠리스1,2,3,4단지, 더샵동천포레스트 |
+| 상현초 | 상현동 | 974 | 24 | 성복역리버파크, 성복역아이파크, 만현마을3단지성원상떼빌5차, 만현마을5단지아이파크, 만현마을쌍용1차 |
+| 서원초 | 상현동 | 745 | 21 | 광교쌍용포레듀엘, 광교상현마을현대, 광교상떼빌파크뷰, 상현마을현대성우, 수지금호베스트빌디에듀, 성복역아이파크, 용인수지휴엔하임, 상현마을현대성우5차, 상현마을수지센트럴아이파크, 상현마을현대성우1차, 상현마을현대성우3차, 광교레이크포레, 상현동일스위트 |
+| 솔개초 | 상현동 | 786 | 24 | 상현마을금호베스트빌4단지, 만현마을8단지두산위브, 상현마을현대성우1차, 상현마을현대성우3차, 광교레이크포레, 상현동일스위트 |
+| 소현초 | 상현동 | 380 | 20 | 만현마을8단지두산위브, 만현마을9단지엘자이, (기흥구)대림2차, 성호사인힐즈, 보정e-편한세상대림1차 |
+| 매봉초 | 상현동 | 891 | 24 | 포레나광교상현, 광교현대프레미오, 심곡마을광교힐스테이트, 성복역롯데캐슬파크나인, 성복역롯데캐슬클라시엘 |
+| 심곡초 | 상현동 | 512 | 21 | 삼성빌리지, 수지SM트윈빌, 상현대진, 서복역금호베스트빌, 벽산블루밍, 서원마을3단지아이파크, 풍산, 성복역현대홈타운, 성복역삼성쉐르빌 |
+
+## 학군 요약
+
+### 외부 수요 유입 요소
+- 이현중, 정평중 학군과 풍덕천 학원가를 이용할 수 있는 단지인지가 핵심
+- 4대 중학교 선호도: 이현중·정평중(풍덕천) > 용인대덕중 > 홍천중
+
+### 내부 선호 요소
+- 초품아 단지에서 학원가를 이용할 수 있는지 여부
+- 대표 학원가 선호도: 풍덕천 학원가(압도적) > 보정동 학원가 > 상현동 학원가
+
+### 한줄 요약
+- 우수 중학군으로 배정 가능한 초등학교 학군이 가장 중요
+- 초품아와 학원가를 함께 이용할 수 있는 단지를 다음 순위로 고려`;
+
+document.addEventListener('DOMContentLoaded', () => {
+  for (const [key, md] of Object.entries(mdData)) {
+    const el = document.getElementById('md-' + key);
+    if (el) el.innerHTML = marked.parse(md);
+  }
+});
+</script>
+</body>
+</html>
